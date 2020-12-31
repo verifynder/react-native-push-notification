@@ -6,6 +6,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.WindowManager.LayoutParams;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -74,6 +75,19 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
 
     @Override
     public void onMessageReceived(RemoteMessage message) {
+        if (message.getData().get("notificationType").equals("Meeting")) {
+            Context context = getApplicationContext();
+            String packageName = context.getApplicationContext().getPackageName();
+            Intent focusIntent = context.getPackageManager().getLaunchIntentForPackage(packageName).cloneFilter();
+
+
+            focusIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK +
+                    LayoutParams.FLAG_SHOW_WHEN_LOCKED +
+                    LayoutParams.FLAG_DISMISS_KEYGUARD +
+                    LayoutParams.FLAG_TURN_SCREEN_ON);
+
+            getApplicationContext().startActivity(focusIntent);
+        }
         mMessageReceivedHandler.handleReceivedMessage(message);
     }
 }
