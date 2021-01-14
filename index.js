@@ -105,13 +105,13 @@ Notifications.configure = function(options) {
         if(this.isPopInitialNotification) {
           return;
         }
-        
+
         this.isPopInitialNotification = true;
-        
+
         if (!firstNotification || false === firstNotification.userInteraction) {
           return;
         }
-        
+
         this._onNotification(firstNotification, true);
       }.bind(this));
     }
@@ -214,7 +214,7 @@ Notifications.localNotification = function(details) {
     if(details.userInfo) {
       details.userInfo = JSON.stringify(details.userInfo);
     }
-  
+
     this.handler.presentLocalNotification(details);
   }
 };
@@ -228,7 +228,7 @@ Notifications.localNotificationSchedule = function(details) {
   if ('android' === Platform.os && details && !details.channelId) {
     console.warn('No channel id passed, notifications may not work.');
   }
-  
+
   if (details && typeof details.id === 'number') {
     if(isNaN(details.id)) {
       console.warn('NaN value has been passed as id');
@@ -288,7 +288,7 @@ Notifications.localNotificationSchedule = function(details) {
         details.shortcutId = '' + details.shortcutId;
       }
     }
-  
+
     if(details && Array.isArray(details.actions)) {
       details.actions = JSON.stringify(details.actions);
     }
@@ -365,7 +365,7 @@ Notifications._transformNotificationObject = function(data, isFromBackground = n
       message: data.getMessage(),
       data: notifData,
       badge: data.getBadgeCount(),
-      title: data.getTitle(),
+      title: data.getTitle && data.getTitle(),
       soundName: data.getSound(),
       fireDate: Date.parse(data._fireDate),
       action: data.getActionIdentifier(),
@@ -391,7 +391,7 @@ Notifications._transformNotificationObject = function(data, isFromBackground = n
         /* void */
       }
     }
-    
+
     if ( typeof _notification.userInfo === 'string' ) {
       try {
         _notification.userInfo = JSON.parse(_notification.userInfo);

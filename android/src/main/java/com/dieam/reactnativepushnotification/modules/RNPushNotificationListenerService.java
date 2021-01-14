@@ -1,21 +1,25 @@
 package com.dieam.reactnativepushnotification.modules;
 
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
-
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
+import android.os.Bundle;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import java.util.Random;
+import android.app.Application;
 
 import static com.dieam.reactnativepushnotification.modules.RNPushNotification.LOG_TAG;
 
@@ -45,7 +49,7 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
         handler.post(new Runnable() {
             public void run() {
                 // Construct and load our normal React JS code bundle
-                final ReactInstanceManager mReactInstanceManager = ((ReactApplication)serviceRef.getApplication()).getReactNativeHost().getReactInstanceManager();
+                final ReactInstanceManager mReactInstanceManager = ((ReactApplication) serviceRef.getApplication()).getReactNativeHost().getReactInstanceManager();
                 ReactContext context = mReactInstanceManager.getCurrentReactContext();
                 // If it's constructed, send a notification
                 if (context != null) {
@@ -89,6 +93,22 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
                     LayoutParams.FLAG_TURN_SCREEN_ON);
 
             getApplicationContext().startActivity(focusIntent);
+        } else {
+            Bundle bundle = new Bundle();
+            try {
+                JSONObject objPayload = new JSONObject(message.getData().get("payload"));
+
+                bundle.putString("id", new Random(System.currentTimeMillis()).nextInt() + "");
+                bundle.putString("channelId", "conversation-chat");
+                bundle.putBoolean("ignoreInForeground", true);
+                bundle.putString("title", message.getData().get("alert"));
+                bundle.putString("message", objPayload.getString("message"));
+                bundle.putString("smallIcon", "logo");
+
+                new RNPushNotificationHelper((Application) getApplicationContext()).sendToNotificationCentre(bundle);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         mMessageReceivedHandler.handleReceivedMessage(message);
     }
