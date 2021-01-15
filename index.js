@@ -368,8 +368,8 @@ Notifications._transformNotificationObject = function(data, isFromBackground = n
       title: data.getTitle && data.getTitle(),
       soundName: data.getSound(),
       fireDate: Date.parse(data._fireDate),
-      action: data.getActionIdentifier(),
-      reply_text: data.getUserText(),
+      action: data.getActionIdentifier && data.getActionIdentifier(),
+      reply_text: data.getUserText && data.getUserText(),
       finish: (res) => data.finish(res)
     };
 
