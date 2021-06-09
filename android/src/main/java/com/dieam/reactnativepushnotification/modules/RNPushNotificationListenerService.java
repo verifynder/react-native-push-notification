@@ -1,11 +1,18 @@
 package com.dieam.reactnativepushnotification.modules;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.WindowManager.LayoutParams;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
+import com.dieam.reactnativepushnotification.R;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.Arguments;
@@ -14,12 +21,12 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import android.os.Bundle;
-import org.json.JSONObject;
-import org.json.JSONArray;
+
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Map;
 import java.util.Random;
-import android.app.Application;
 
 import static com.dieam.reactnativepushnotification.modules.RNPushNotification.LOG_TAG;
 
@@ -81,6 +88,7 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
 
     @Override
     public void onMessageReceived(RemoteMessage message) {
+        Log.v("Notification", message.getData().toString());
         if (message.getData().get("notificationType").equals("Meeting")) {
             Context context = getApplicationContext();
             String packageName = context.getApplicationContext().getPackageName();
@@ -102,10 +110,21 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
                 bundle.putString("channelId", "conversation-chat");
                 bundle.putBoolean("ignoreInForeground", true);
                 bundle.putString("title", message.getData().get("alert"));
-                bundle.putString("message", objPayload.getString("message"));
+                bundle.putString("message", objPayload.getString("fromUserDetails")); // message.getData().get("message"));
                 bundle.putString("smallIcon", "logo");
 
+                Bundle dataBundle = new Bundle();
+                Map<String, String> notificationData = message.getData();
+
+                for(Map.Entry<String, String> entry : notificationData.entrySet()) {
+                    dataBundle.putString(entry.getKey(), entry.getValue());
+                }
+
+                bundle.putParcelable("data", dataBundle);
+
+                // mMessageReceivedHandler.handleRemotePushNotification((Application) getApplicationContext(), bundle);
                 new RNPushNotificationHelper((Application) getApplicationContext()).sendToNotificationCentre(bundle);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
