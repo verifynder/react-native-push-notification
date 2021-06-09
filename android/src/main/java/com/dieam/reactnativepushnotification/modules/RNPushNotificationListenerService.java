@@ -88,7 +88,6 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
 
     @Override
     public void onMessageReceived(RemoteMessage message) {
-        Log.v("Notification", message.getData().toString());
         if (message.getData().get("notificationType").equals("Meeting")) {
             Context context = getApplicationContext();
             String packageName = context.getApplicationContext().getPackageName();
@@ -101,7 +100,7 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
                     LayoutParams.FLAG_TURN_SCREEN_ON);
 
             getApplicationContext().startActivity(focusIntent);
-        } else {
+        } else if (message.getData().get("notificationType").equals("Conversation")) {
             Bundle bundle = new Bundle();
             try {
                 JSONObject objPayload = new JSONObject(message.getData().get("payload"));
@@ -116,7 +115,7 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
                 Bundle dataBundle = new Bundle();
                 Map<String, String> notificationData = message.getData();
 
-                for(Map.Entry<String, String> entry : notificationData.entrySet()) {
+                for (Map.Entry<String, String> entry : notificationData.entrySet()) {
                     dataBundle.putString(entry.getKey(), entry.getValue());
                 }
 
